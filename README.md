@@ -30,4 +30,4 @@ Unity 메인 스레드에서 호출하며, Editor/Development Build에서 수집
 
 ## AI 스킬
 
-저장소에 Codex용 [`achieve-event-tracer`](.agents/skills/achieve-event-tracer/SKILL.md)와 Claude Code용 [동일 스킬](.claude/skills/achieve-event-tracer/SKILL.md)이 포함되어 있습니다. 직접 호출: Codex `$achieve-event-tracer`, Claude Code `/achieve-event-tracer`.
+스킬 원본은 [`Skills~/achieve-event-tracer`](Skills~/achieve-event-tracer/SKILL.md)에 있습니다. Unity Skill Manager가 프로젝트의 `.agents/skills`와 `.claude/skills`에 취합합니다. 직접 호출: Codex `$achieve-event-tracer`, Claude Code `/achieve-event-tracer`.
