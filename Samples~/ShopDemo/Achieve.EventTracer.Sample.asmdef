@@ -1,0 +1,5 @@
+{
+  "name": "Achieve.EventTracer.Sample",
+  "rootNamespace": "Achieve.EventTracer.Samples",
+  "references": ["Achieve.EventTracer"]
+}

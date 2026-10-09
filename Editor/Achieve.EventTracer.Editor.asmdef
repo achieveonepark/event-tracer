@@ -1,0 +1,6 @@
+{
+  "name": "Achieve.EventTracer.Editor",
+  "rootNamespace": "Achieve.EventTracer.Editor",
+  "references": ["Achieve.EventTracer"],
+  "includePlatforms": ["Editor"]
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Achieve Event Tracer"
+  short_description: "Unity 게임 이벤트의 기록·원인 추적과 캡처 구현"
+  default_prompt: "Use $achieve-event-tracer to implement or integrate Unity event recording, causal links, and trace capture inspection."
+policy:
+  allow_implicit_invocation: true

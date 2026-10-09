@@ -1,0 +1,5 @@
+{
+  "name": "Achieve.EventTracer.Sample.Editor",
+  "references": ["Achieve.EventTracer", "Achieve.EventTracer.Editor", "Achieve.EventTracer.Sample"],
+  "includePlatforms": ["Editor"]
+}

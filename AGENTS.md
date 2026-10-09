@@ -1,0 +1,3 @@
+# Event Tracer
+
+이 패키지의 구현·연동·수정·디버깅 작업을 시작할 때 [achieve-event-tracer 스킬](.agents/skills/achieve-event-tracer/SKILL.md)을 읽고 적용한다. 사용자가 스킬을 직접 호출하지 않아도 관련 작업에 사용한다.

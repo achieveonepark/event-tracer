@@ -1,0 +1,15 @@
+{
+  "name": "com.achive.event-tracer",
+  "version": "0.1.0",
+  "displayName": "Event Tracer",
+  "description": "Bounded event capture with payload snapshots, causal links, and a UI Toolkit event browser.",
+  "unity": "2022.3",
+  "keywords": ["debugging", "events", "tracing", "diagnostics"],
+  "samples": [
+    {
+      "displayName": "Shop Demo",
+      "description": "A shop with an intentional double charge, explicit parent IDs, and a demo scene generator.",
+      "path": "Samples~/ShopDemo"
+    }
+  ]
+}

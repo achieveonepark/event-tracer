@@ -1,0 +1,6 @@
+{
+  "name": "Achieve.EventTracer.Editor.Tests",
+  "references": ["Achieve.EventTracer", "Achieve.EventTracer.Editor"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
