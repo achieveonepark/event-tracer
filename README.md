@@ -1,5 +1,8 @@
 # Event Tracer
 
+[![openupm](https://img.shields.io/npm/v/com.achive.event-tracer?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.achive.event-tracer/)
+[![openupm](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=downloads&query=%24.downloads&suffix=%2Fmonth&url=https%3A%2F%2Fpackage.openupm.com%2Fdownloads%2Fpoint%2Flast-month%2Fcom.achive.event-tracer)](https://openupm.com/packages/com.achive.event-tracer/)
+
 [한국어](README.ko.md)
 
 A Unity package for recording gameplay events, payload snapshots, explicit cause/effect relationships, and optional call stacks. Browse events in a UI Toolkit window and save sessions as `.etr` captures.
