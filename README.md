@@ -5,21 +5,46 @@
 
 [한국어](README.ko.md)
 
-A Unity package for recording gameplay events, payload snapshots, explicit cause/effect relationships, and optional call stacks. Browse events in a UI Toolkit window and save sessions as `.etr` captures.
+A Unity tool for understanding what happened in your game and why. Record events with their data, follow related events, inspect call stacks, and save a session to revisit or share.
 
 ## Installation
 
-Requires **Unity 2022.3 or later**. In Package Manager, choose **+ → Add package from git URL**:
+Requires **Unity 2022.3 or later**. Recording works in the Editor and Development Builds.
+
+### OpenUPM
+
+With the [OpenUPM CLI](https://openupm.com/docs/getting-started-cli.html) installed, run this from your Unity project folder:
+
+```sh
+openupm add com.achive.event-tracer
+```
+
+To install through the Unity Editor:
+
+1. Open **Edit → Project Settings → Package Manager** and add a scoped registry:
+
+   | Field | Value |
+   | --- | --- |
+   | Name | `OpenUPM` |
+   | URL | `https://package.openupm.com` |
+   | Scope | `com.achive.event-tracer` |
+
+2. Click **Apply**, then open **Window → Package Manager**.
+3. Choose **+ → Add package by name**, enter `com.achive.event-tracer`, and click **Add**.
+
+See the [OpenUPM installation guide](https://openupm.com/docs/getting-started.html) for more help.
+
+### Git URL
+
+Alternatively, in Package Manager choose **+ → Add package from git URL** and paste:
 
 ```text
 https://github.com/achieveonepark/event-tracer.git
 ```
 
-The package ID is `com.achive.event-tracer` (the `achive` spelling is intentional). For OpenUPM registration and installation instructions, see [Publishing to OpenUPM](Documentation~/publishing.md).
+## Quick start
 
-## Usage
-
-Open **Tools → Achieve → Event Tracer** and add recording points to your game code:
+Open **Tools → Achieve → Event Tracer**. Start a session at the beginning of the scenario you want to inspect, then record the actions you care about:
 
 ```csharp
 using Achieve.EventTracer;
@@ -29,28 +54,53 @@ var purchase = EventTrace.Record("Shop.Purchase", new { price = 100 });
 EventTrace.Record("Wallet.Spend", new { amount = 100 }, parentId: purchase);
 ```
 
-Call the API on the Unity main thread. Recording works in the Editor and Development Builds. The browser supports search, filters, cause/effect navigation, export/import, and **English / 한국어** display languages. The UI defaults to English and remembers your language selection.
+Call these methods on the Unity main thread. Pass a recorded event's ID as `parentId` to link a later event to its cause. Add `source: this` when recording from a `MonoBehaviour` to let the browser select that object.
+
+Enter Play mode and select an event in the browser. Its details show the recorded data, cause, effects, source object, and calling code. Use search and the category, severity, or source filters to narrow the list.
+
+The UI defaults to English. Use the language menu to switch to **한국어**; your choice is remembered.
+
+## Try the demo
+
+1. Select **Event Tracer** in Package Manager and import **Shop Demo** from its **Samples** section.
+2. Run **Tools → Achieve → Samples → Create Shop Trace Demo**.
+3. Enter Play mode and click **Buy FireSword** in the Game view.
+4. In Event Tracer, select `Shop.Purchase`. Two `Wallet.Spend` events appear as effects of that purchase: the demo intentionally charges twice.
+5. Turn off **Intentional duplicate charge** and buy again to compare with a single charge.
+
+Use **Reset shop / new session** in the Game view to start over.
+
+## Browser controls
+
+| Control | Use it to |
+| --- | --- |
+| **Record** | Turn event recording on or off |
+| **Pause view** | Keep the displayed events still while recording continues |
+| **New session** | Start a fresh session and empty the event list |
+| **Clear** | Empty the list while staying in the same session |
+| **Back to live** | Return from an imported capture or paused view |
+| **Capture limits → Apply** | Set recording limits and enable caller or stack capture |
 
 ## Call stacks
 
-Enable **Capture limits → Capture stack trace → Apply** to capture the call stack when each new event is recorded. Select an event to view and copy its **CALL STACK**; stacks are preserved in exported `.etr` files. You can also configure this in code:
+Enable **Capture limits → Capture stack trace**, then click **Apply** before reproducing the issue. Select a new event to read or copy its **CALL STACK**.
 
-```csharp
-var options = EventTrace.Configuration;
-options.captureStackTrace = true;
-options.maxStackTraceCharacters = 8192;
-EventTrace.Configure(options);
-```
+Stack recording is off by default because it adds overhead. File names and line numbers depend on available debug symbols. For events separated by async work or coroutines, pass `parentId` to preserve the cause/effect link.
 
-Stack capture is off by default because it adds recording overhead. Each stack is truncated to the configured character limit and counts toward the buffer budget. File names and line numbers depend on available debug symbols. Async and coroutine continuations show their current execution stack; use `parentId` to connect events across those boundaries.
+## Save and reopen a session
 
-Import **Shop Demo** from Package Manager, then run **Tools → Achieve → Samples → Create Shop Trace Demo** to try an intentional duplicate charge.
+Click **Export** to save the displayed session as an `.etr` file, including event data, relationships, and recorded call stacks. Export captures you want to keep before starting a new session.
 
-See the [API and capture guide](Documentation~/event-tracer.md) for configuration, storage limits, and testing.
+Click **Import** to reopen a capture without changing live recording. You can also select an `.etr` file in the Project window and choose **Open in Event Tracer**. Use **Back to live** to return to the current session.
 
-## AI skill
+## Troubleshooting
 
-The skill source is in [`Skills~/achieve-event-tracer`](Skills~/achieve-event-tracer/SKILL.md). Unity Skill Manager collects it into the project's `.agents/skills` and `.claude/skills`. Invoke it with `$achieve-event-tracer` in Codex or `/achieve-event-tracer` in Claude Code.
+- **No events?** Check **Record**, clear any search and filters, and confirm the game calls `EventTrace.Record`. Recording runs in the Editor or a Development Build.
+- **No call stack?** Enable stack capture, click **Apply**, and reproduce the action again. Existing events keep the information recorded at the time.
+- **Missing older events or parents?** The buffer removes old events when its limits are reached. Increase the limits under **Capture limits** or export shorter sessions.
+- **Cannot select the source object?** Supply `source` when recording. Selection is available while that object is alive; saved captures keep its name rather than a live reference.
+
+See the [usage and API guide](Documentation~/event-tracer.md) for configuration examples and capture limits.
 
 ## License
 
