@@ -338,6 +338,9 @@ namespace Achieve.EventTracer.Tests
             var window = ScriptableObject.CreateInstance<EventTraceWindow>();
             try
             {
+                EditorPrefs.DeleteKey("Achieve.Editor.Language");
+                Assert.That(TraceLocalization.IsKorean, Is.False);
+                Assert.That(TraceLocalization.CreateSelector().text, Is.EqualTo("English"));
                 TraceLocalization.SetLanguage(false);
                 EventTrace.Record("Clear", new { text = "Export" });
                 window.CreateGUI();

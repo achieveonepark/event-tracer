@@ -24,7 +24,7 @@ var purchase = EventTrace.Record("Shop.Purchase", new { price = 100 });
 EventTrace.Record("Wallet.Spend", new { amount = 100 }, parentId: purchase);
 ```
 
-Unity 메인 스레드에서 호출하며, Editor/Development Build에서 수집합니다. 창에서 검색·필터·원인 추적·캡처 저장을 사용할 수 있고 **한국어 / English**를 선택할 수 있습니다.
+Unity 메인 스레드에서 호출하며, Editor/Development Build에서 수집합니다. 창에서 검색·필터·원인 추적·캡처 저장을 사용할 수 있고 **한국어 / English**를 선택할 수 있습니다. UI 기본 언어는 영어이며 선택한 언어는 기억합니다.
 
 샘플: Package Manager의 **Shop Demo**를 Import → **Tools → Achieve → Samples → Create Shop Trace Demo**.
 

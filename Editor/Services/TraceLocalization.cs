@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Achieve.EventTracer.Editor
@@ -106,8 +105,7 @@ namespace Achieve.EventTracer.Editor
         private sealed class Schedule { public IVisualElementScheduledItem item; }
         private static readonly ConditionalWeakTable<VisualElement, ElementState> Originals = new ConditionalWeakTable<VisualElement, ElementState>();
         private static readonly ConditionalWeakTable<VisualElement, Schedule> Schedules = new ConditionalWeakTable<VisualElement, Schedule>();
-        public static bool IsKorean => EditorPrefs.GetString(PreferenceKey,
-            Application.systemLanguage == SystemLanguage.Korean ? "ko" : "en") == "ko";
+        public static bool IsKorean => EditorPrefs.GetString(PreferenceKey, "en") == "ko";
         public static void SetLanguage(bool korean) => EditorPrefs.SetString(PreferenceKey, korean ? "ko" : "en");
         public static void SetText(TextElement element, string english)
         {

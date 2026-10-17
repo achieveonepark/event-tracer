@@ -26,7 +26,7 @@ var purchase = EventTrace.Record("Shop.Purchase", new { price = 100 });
 EventTrace.Record("Wallet.Spend", new { amount = 100 }, parentId: purchase);
 ```
 
-Call the API on the Unity main thread. Recording works in the Editor and Development Builds. The browser supports search, filters, cause/effect navigation, export/import, and **English / 한국어** display languages.
+Call the API on the Unity main thread. Recording works in the Editor and Development Builds. The browser supports search, filters, cause/effect navigation, export/import, and **English / 한국어** display languages. The UI defaults to English and remembers your language selection.
 
 ## Call stacks
 
