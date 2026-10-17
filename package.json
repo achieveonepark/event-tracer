@@ -1,9 +1,21 @@
 {
   "name": "com.achive.event-tracer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "displayName": "Event Tracer",
-  "description": "Bounded event capture with payload snapshots, causal links, and a UI Toolkit event browser.",
+  "description": "Bounded event capture with payload snapshots, causal links, optional call stacks, and a UI Toolkit event browser.",
   "unity": "2022.3",
+  "license": "MIT",
+  "author": {
+    "name": "achieveonepark",
+    "url": "https://github.com/achieveonepark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/achieveonepark/event-tracer.git"
+  },
+  "documentationUrl": "https://github.com/achieveonepark/event-tracer/blob/main/Documentation~/event-tracer.md",
+  "changelogUrl": "https://github.com/achieveonepark/event-tracer/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/achieveonepark/event-tracer/blob/main/LICENSE.md",
   "keywords": ["debugging", "events", "tracing", "diagnostics"],
   "samples": [
     {

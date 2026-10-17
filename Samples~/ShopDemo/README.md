@@ -1,7 +1,11 @@
 # Shop Demo
 
-Package Manager에서 **Shop Demo**를 Import하고 **Tools → Achieve → Samples → Create Shop Trace Demo**를 실행합니다.
+[한국어](README.ko.md)
 
-Play 후 Game 뷰에서 **Buy FireSword**를 누릅니다. **Tools → Achieve → Event Tracer**에서 `Shop.Purchase`를 선택하면 두 번 발생한 `Wallet.Spend`와 `Inventory.Add`가 같은 구매의 결과로 연결됩니다.
+Import **Shop Demo** from Package Manager, then run **Tools → Achieve → Samples → Create Shop Trace Demo**.
 
-Game 뷰의 **Intentional duplicate charge**를 끄고 다시 구매하면 차감이 한 번만 발생합니다. **Reset shop / new session**은 골드를 초기화하고 새 추적 세션을 시작합니다.
+Enter Play mode and click **Buy FireSword** in the Game view. Open **Tools → Achieve → Event Tracer** and select `Shop.Purchase`: the two `Wallet.Spend` events and `Inventory.Add` are linked as effects of the same purchase.
+
+Turn off **Intentional duplicate charge** and purchase again to see a single charge. **Reset shop / new session** resets gold and starts a new trace session.
+
+To inspect the synchronous call chain, enable **Capture limits → Capture stack trace → Apply** before purchasing, then select a new event and read **CALL STACK**.

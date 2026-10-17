@@ -208,7 +208,17 @@ namespace Achieve.EventTracer.Editor
             var payload = new IntegerField("Payload characters") { value = options.maxPayloadCharacters };
             var budget = new IntegerField("Buffer characters") { value = options.maxBufferCharacters };
             var caller = new Toggle("Capture caller") { value = options.captureCaller };
+            var stackTrace = new Toggle("Capture stack trace")
+            {
+                value = options.captureStackTrace, name = "trace-capture-stack",
+                tooltip = "Capture the call stack for new events. Adds recording overhead."
+            };
+            var stackLimit = new IntegerField("Stack trace characters")
+            {
+                value = options.maxStackTraceCharacters, name = "trace-stack-limit"
+            };
             row.Add(maxEvents); row.Add(payload); row.Add(budget); row.Add(caller);
+            row.Add(stackTrace); row.Add(stackLimit);
             AddButton(row, "Apply", () =>
             {
                 try
@@ -218,6 +228,8 @@ namespace Achieve.EventTracer.Editor
                     config.maxPayloadCharacters = payload.value;
                     config.maxBufferCharacters = budget.value;
                     config.captureCaller = caller.value;
+                    config.captureStackTrace = stackTrace.value;
+                    config.maxStackTraceCharacters = stackLimit.value;
                     TraceEditorPreferences.Save(config);
                     notice.style.display = DisplayStyle.None;
                     Refresh(true);
@@ -406,6 +418,9 @@ namespace Achieve.EventTracer.Editor
                 open.SetEnabled(File.Exists(record.CallerFile));
                 open.tooltip = record.CallerFile;
             }
+            AddEyebrow("CALL STACK");
+            if (!string.IsNullOrEmpty(record.StackTrace)) AddCode(record.StackTrace, "trace-stack-trace");
+            else AddMuted("No call stack recorded. Enable Capture stack trace for new events.");
             if (!string.IsNullOrEmpty(displayed.Session.MetadataJson) && displayed.Session.MetadataJson != "null")
             {
                 AddEyebrow("SESSION METADATA");

@@ -21,6 +21,7 @@ namespace Achieve.EventTracer
         [SerializeField] private string callerFile;
         [SerializeField] private string callerMember;
         [SerializeField] private int callerLine;
+        [SerializeField] private string stackTrace;
         [NonSerialized] private WeakReference<UnityEngine.Object> source;
 
         public TraceId Id => new TraceId(sessionId, sequence);
@@ -36,16 +37,17 @@ namespace Achieve.EventTracer
         public string CallerFile => callerFile;
         public string CallerMember => callerMember;
         public int CallerLine => callerLine;
+        public string StackTrace => stackTrace ?? string.Empty;
         public UnityEngine.Object SourceObject => source != null && source.TryGetTarget(out var target) && target != null
             ? target : null;
 
         internal int CharacterCost => (eventName?.Length ?? 0) + (category?.Length ?? 0) +
             (payloadJson?.Length ?? 0) + (sourceName?.Length ?? 0) + (callerFile?.Length ?? 0) +
-            (callerMember?.Length ?? 0) + 128;
+            (callerMember?.Length ?? 0) + (stackTrace?.Length ?? 0) + 128;
 
         internal TraceRecord(TraceId id, TraceId parentId, string name, string eventCategory, TraceLevel eventLevel,
             double elapsed, int eventFrame, string payload, UnityEngine.Object sourceObject,
-            string file, string member, int line)
+            string file, string member, int line, string callStack = "")
         {
             sessionId = id.SessionId;
             sequence = id.Sequence;
@@ -63,6 +65,7 @@ namespace Achieve.EventTracer
             callerFile = file ?? string.Empty;
             callerMember = member ?? string.Empty;
             callerLine = line;
+            stackTrace = callStack ?? string.Empty;
         }
     }
 }

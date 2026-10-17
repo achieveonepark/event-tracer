@@ -57,6 +57,7 @@ namespace Achieve.EventTracer
         }
 
         /// <summary>Records on the Unity main thread. parentId is explicitly propagated by the caller.</summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static TraceId Record(string eventName, object data = null, UnityEngine.Object source = null,
             TraceId parentId = default, string category = null, TraceLevel level = TraceLevel.Info,
             [CallerFilePath] string callerFile = "", [CallerMemberName] string callerMember = "",
@@ -65,6 +66,10 @@ namespace Achieve.EventTracer
             if (!IsEnabled) return default;
             AssertMainThread();
             if (capturingPayload) return default; // A DTO getter must not recursively trace itself.
+            // Capture before reading payload getters; omit this recorder's own frame.
+            var stackTrace = configuration.captureStackTrace
+                ? Limit(new StackTrace(1, true).ToString(), configuration.maxStackTraceCharacters)
+                : string.Empty;
             var name = Limit(string.IsNullOrWhiteSpace(eventName) ? "Unnamed event" : eventName, 256);
             var eventCategory = category;
             if (string.IsNullOrWhiteSpace(eventCategory))
@@ -83,7 +88,7 @@ namespace Achieve.EventTracer
                 Time.frameCount, payload, source,
                 configuration.captureCaller ? Limit(callerFile, 1024) : string.Empty,
                 configuration.captureCaller ? Limit(callerMember, 256) : string.Empty,
-                configuration.captureCaller ? callerLine : 0);
+                configuration.captureCaller ? callerLine : 0, stackTrace);
             buffer.Add(record);
             Version++;
             return id;

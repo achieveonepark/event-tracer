@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Achieve.EventTracer.Editor;
 using NUnit.Framework;
@@ -179,6 +181,135 @@ namespace Achieve.EventTracer.Tests
             Assert.That(record.CallerMember, Is.EqualTo(nameof(CallerLocationIsCaptured)));
             Assert.That(record.CallerLine, Is.GreaterThan(0));
         }
+
+        [Test] public void StackTraceIsOptInAndIndependentOfCallerLocation()
+        {
+            EventTrace.Record("Default");
+            Assert.That(EventTrace.GetSnapshot()[0].StackTrace, Is.Empty);
+            EventTrace.Configure(new TraceConfiguration { captureCaller = false, captureStackTrace = true });
+            RecordThroughHelper();
+            var record = EventTrace.GetSnapshot()[1];
+            Assert.That(record.StackTrace, Does.Contain(nameof(RecordThroughHelper)));
+            Assert.That(record.StackTrace, Does.Contain(nameof(StackTraceIsOptInAndIndependentOfCallerLocation)));
+            Assert.That(record.StackTrace, Does.Not.Contain("EventTrace.Record"));
+            Assert.That(record.CallerFile, Is.Empty);
+            Assert.That(record.CallerMember, Is.Empty);
+            Assert.That(record.CallerLine, Is.Zero);
+        }
+
+        [Test] public void DisablingStackCaptureOnlyAffectsNewEvents()
+        {
+            EventTrace.Configure(new TraceConfiguration { captureStackTrace = true });
+            EventTrace.Record("With stack");
+            var configuration = EventTrace.Configuration;
+            configuration.captureStackTrace = false;
+            EventTrace.Configure(configuration);
+            EventTrace.Record("Without stack");
+            Assert.That(EventTrace.GetSnapshot()[0].StackTrace, Is.Not.Empty);
+            Assert.That(EventTrace.GetSnapshot()[1].StackTrace, Is.Empty);
+        }
+
+        [Test] public void StackTraceSurvivesExportAndImport()
+        {
+            EventTrace.Configure(new TraceConfiguration { captureStackTrace = true });
+            RecordThroughHelper();
+            var stackTrace = EventTrace.GetSnapshot()[0].StackTrace;
+            EventTrace.StartSession("After recording");
+            Assert.That(stackTrace, Does.Contain(nameof(RecordThroughHelper)));
+            RecordThroughHelper();
+            var capture = TraceCapture.FromJson(EventTrace.Capture().ToJson());
+            Assert.That(capture.Records[0].StackTrace, Is.EqualTo(EventTrace.GetSnapshot()[0].StackTrace));
+        }
+
+        [Test] public void OlderCaptureWithoutStackTraceStillImports()
+        {
+            EventTrace.Record("Legacy event");
+            var json = Regex.Replace(EventTrace.Capture().ToJson(false), ",\"stackTrace\":\"\"", string.Empty);
+            Assert.That(json, Does.Not.Contain("stackTrace"));
+            var capture = TraceCapture.FromJson(json);
+            Assert.That(capture.Records[0].StackTrace, Is.Empty);
+            Assert.That(capture.Records[0].EventName, Is.EqualTo("Legacy event"));
+        }
+
+        [Test] public void StackTraceIsTruncatedAndCountsTowardBufferBudget()
+        {
+            EventTrace.Configure(new TraceConfiguration
+            {
+                captureCaller = false, captureStackTrace = true, maxStackTraceCharacters = 128,
+                maxPayloadCharacters = 128, maxBufferCharacters = 400
+            });
+            RecordThroughHelper();
+            var characters = EventTrace.BufferedCharacters;
+            Assert.That(EventTrace.GetSnapshot()[0].StackTrace, Has.Length.EqualTo(128));
+            EventTrace.Clear();
+            var configuration = EventTrace.Configuration;
+            configuration.captureStackTrace = false;
+            EventTrace.Configure(configuration);
+            RecordThroughHelper();
+            Assert.That(characters - EventTrace.BufferedCharacters, Is.EqualTo(128));
+            EventTrace.Clear();
+            configuration.captureStackTrace = true;
+            EventTrace.Configure(configuration);
+            RecordThroughHelper();
+            RecordThroughHelper();
+            Assert.That(EventTrace.Count, Is.EqualTo(1));
+            Assert.That(EventTrace.DroppedCount, Is.EqualTo(1));
+            Assert.That(EventTrace.BufferedCharacters, Is.LessThanOrEqualTo(400));
+        }
+
+        [TestCase(127)]
+        [TestCase(65537)]
+        public void InvalidStackTraceLimitDoesNotChangeRecorder(int limit)
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                EventTrace.Configure(new TraceConfiguration { maxStackTraceCharacters = limit }));
+            Assert.That(EventTrace.Configuration.maxEvents, Is.EqualTo(3));
+        }
+
+        [Test] public void OlderEditorPreferencesKeepExistingValuesAndNewDefaults()
+        {
+            var configuration = new TraceConfiguration();
+            JsonUtility.FromJsonOverwrite("{\"maxEvents\":42,\"captureCaller\":false}", configuration);
+            configuration.Validate();
+            Assert.That(configuration.maxEvents, Is.EqualTo(42));
+            Assert.That(configuration.captureCaller, Is.False);
+            Assert.That(configuration.captureStackTrace, Is.False);
+            Assert.That(configuration.maxStackTraceCharacters, Is.EqualTo(8192));
+        }
+
+        [Test] public void WindowShowsImportedStackAndPreservesItAcrossLanguages()
+        {
+            EventTrace.Configure(new TraceConfiguration { captureStackTrace = true });
+            RecordThroughHelper();
+            var capture = TraceCapture.FromJson(EventTrace.Capture().ToJson());
+            var existed = EditorPrefs.HasKey("Achieve.Editor.Language");
+            var previous = EditorPrefs.GetString("Achieve.Editor.Language");
+            var window = ScriptableObject.CreateInstance<EventTraceWindow>();
+            try
+            {
+                TraceLocalization.SetLanguage(false);
+                window.CreateGUI();
+                window.LoadCapture(capture);
+                window.rootVisualElement.Q<ListView>("trace-event-list").SetSelection(0);
+                var field = window.rootVisualElement.Q<TextField>("trace-stack-trace");
+                Assert.That(field, Is.Not.Null);
+                Assert.That(field.isReadOnly, Is.True);
+                Assert.That(field.value, Is.EqualTo(capture.Records[0].StackTrace));
+                TraceLocalization.SetLanguage(true);
+                TraceLocalization.Apply(window.rootVisualElement);
+                Assert.That(field.value, Is.EqualTo(capture.Records[0].StackTrace));
+                Assert.That(window.rootVisualElement.Q<Toggle>("trace-capture-stack").label, Is.EqualTo("호출 스택 기록"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(window);
+                if (existed) EditorPrefs.SetString("Achieve.Editor.Language", previous);
+                else EditorPrefs.DeleteKey("Achieve.Editor.Language");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void RecordThroughHelper() => EventTrace.Record("Stack event");
 
         [Test] public void WindowBuildsToolkitBrowserAndFiltersActualRecords()
         {

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0
+
+- Prepare the first stable OpenUPM release with MIT license and package metadata.
+- Make English the default documentation language, with linked Korean guides.
+- Add optional recording-time call stacks, a per-event character limit, and buffer budget accounting.
+- Show call stacks in the event browser and preserve them in .etr exports and imports.
+- Keep older captures and editor preferences compatible with the new stack trace settings.
+
 ## 0.1.0
 
 - Independent UPM package with explicit session-aware parent IDs.

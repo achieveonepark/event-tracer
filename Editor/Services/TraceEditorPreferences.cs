@@ -16,8 +16,10 @@ namespace Achieve.EventTracer.Editor
             try
             {
                 var json = EditorPrefs.GetString(Key, string.Empty);
-                EventTrace.Configure(string.IsNullOrEmpty(json)
-                    ? new TraceConfiguration() : JsonUtility.FromJson<TraceConfiguration>(json));
+                var configuration = new TraceConfiguration();
+                // Keep defaults for fields absent from preferences saved by older versions.
+                if (!string.IsNullOrEmpty(json)) JsonUtility.FromJsonOverwrite(json, configuration);
+                EventTrace.Configure(configuration);
             }
             catch (Exception) { EventTrace.Configure(new TraceConfiguration()); }
         }

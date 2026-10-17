@@ -1,18 +1,22 @@
 # Event Tracer
 
-게임 이벤트의 데이터와 원인·결과 관계를 기록하고 `.etr` 캡처로 저장하는 Unity 패키지입니다.
+[한국어](README.ko.md)
 
-## 설치
+A Unity package for recording gameplay events, payload snapshots, explicit cause/effect relationships, and optional call stacks. Browse events in a UI Toolkit window and save sessions as `.etr` captures.
 
-Unity **2022.3 이상**에서 Package Manager → **+ → Add package from git URL**:
+## Installation
+
+Requires **Unity 2022.3 or later**. In Package Manager, choose **+ → Add package from git URL**:
 
 ```text
 https://github.com/achieveonepark/event-tracer.git
 ```
 
-## 사용
+The package ID is `com.achive.event-tracer` (the `achive` spelling is intentional). For OpenUPM registration and installation instructions, see [Publishing to OpenUPM](Documentation~/publishing.md).
 
-**Tools → Achieve → Event Tracer**를 열고 게임 코드에 기록 지점을 추가합니다.
+## Usage
+
+Open **Tools → Achieve → Event Tracer** and add recording points to your game code:
 
 ```csharp
 using Achieve.EventTracer;
@@ -22,12 +26,29 @@ var purchase = EventTrace.Record("Shop.Purchase", new { price = 100 });
 EventTrace.Record("Wallet.Spend", new { amount = 100 }, parentId: purchase);
 ```
 
-Unity 메인 스레드에서 호출하며, Editor/Development Build에서 수집합니다. 창에서 검색·필터·원인 추적·캡처 저장을 사용할 수 있고 **한국어 / English**를 선택할 수 있습니다.
+Call the API on the Unity main thread. Recording works in the Editor and Development Builds. The browser supports search, filters, cause/effect navigation, export/import, and **English / 한국어** display languages.
 
-샘플: Package Manager의 **Shop Demo**를 Import → **Tools → Achieve → Samples → Create Shop Trace Demo**.
+## Call stacks
 
-자세한 API와 캡처 형식은 [사용 가이드](Documentation~/event-tracer.md)를 참고하세요.
+Enable **Capture limits → Capture stack trace → Apply** to capture the call stack when each new event is recorded. Select an event to view and copy its **CALL STACK**; stacks are preserved in exported `.etr` files. You can also configure this in code:
 
-## AI 스킬
+```csharp
+var options = EventTrace.Configuration;
+options.captureStackTrace = true;
+options.maxStackTraceCharacters = 8192;
+EventTrace.Configure(options);
+```
 
-스킬 원본은 [`Skills~/achieve-event-tracer`](Skills~/achieve-event-tracer/SKILL.md)에 있습니다. Unity Skill Manager가 프로젝트의 `.agents/skills`와 `.claude/skills`에 취합합니다. 직접 호출: Codex `$achieve-event-tracer`, Claude Code `/achieve-event-tracer`.
+Stack capture is off by default because it adds recording overhead. Each stack is truncated to the configured character limit and counts toward the buffer budget. File names and line numbers depend on available debug symbols. Async and coroutine continuations show their current execution stack; use `parentId` to connect events across those boundaries.
+
+Import **Shop Demo** from Package Manager, then run **Tools → Achieve → Samples → Create Shop Trace Demo** to try an intentional duplicate charge.
+
+See the [API and capture guide](Documentation~/event-tracer.md) for configuration, storage limits, and testing.
+
+## AI skill
+
+The skill source is in [`Skills~/achieve-event-tracer`](Skills~/achieve-event-tracer/SKILL.md). Unity Skill Manager collects it into the project's `.agents/skills` and `.claude/skills`. Invoke it with `$achieve-event-tracer` in Codex or `/achieve-event-tracer` in Claude Code.
+
+## License
+
+[MIT](LICENSE.md).
